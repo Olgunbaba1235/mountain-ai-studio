@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mountain AI - Kesintisiz Otonom Ajans</title>
+<style>
+  :root { --bg: #070a12; --card: #0f172a; --panel: #1e293b; --border: #334155; --accent: #ff4b2b; --green: #10b981; --blue: #38bdf8; --text: #f8fafc; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 16px; }
+  
+  .top-bar { max-width: 1400px; margin: 0 auto 16px auto; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 18px; }
+  .api-zone { display: flex; gap: 8px; align-items: center; }
+  .api-zone input { background: #050811; border: 1px solid #475569; color: var(--green); padding: 8px 12px; border-radius: 8px; width: 260px; font-family: monospace; }
+
+  .main-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 380px 1fr; gap: 16px; }
+  @media (max-width: 980px) { .main-grid { grid-template-columns: 1fr; } }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; }
+  .card-title { font-size: 14px; font-weight: 800; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin: 0 0 10px 0; display: flex; justify-content: space-between; }
+
+  label { display: block; font-size: 11px; text-transform: uppercase; color: #94a3b8; margin: 10px 0 4px 0; font-weight: 700; }
+  input, textarea { width: 100%; background: var(--panel); border: 1px solid #475569; color: #fff; padding: 10px; border-radius: 8px; font-size: 13px; outline: none; }
+  input:focus, textarea:focus { border-color: var(--blue); }
+
+  .btn-fire { width: 100%; margin-top: 14px; background: linear-gradient(90deg, #ff4b2b, #ff416c); border: none; color: #fff; padding: 14px; border-radius: 10px; font-weight: 900; font-size: 14px; cursor: pointer; }
+  .btn-fire:disabled { background: #475569; cursor: not-allowed; }
+  .btn-sm { background: var(--green); color: #052e16; border: none; padding: 8px 12px; border-radius: 7px; font-weight: 800; font-size: 12px; cursor: pointer; }
+
+  .terminal { margin-top: 12px; background: #03050a; border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 12px; color: #a7f3d0; height: 110px; overflow-y: auto; line-height: 1.5; }
+  .voice-panel { margin-top: 12px; padding: 12px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; }
+  .btn-group { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+  .tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .tab { background: var(--panel); border: none; color: #94a3b8; padding: 9px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12px; }
+  .tab.active { background: var(--accent); color: #fff; }
+
+  .pane { display: none; background: #050811; border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-height: 380px; max-height: 460px; overflow-y: auto; white-space: pre-wrap; font-size: 14px; line-height: 1.65; color: #e2e8f0; }
+  .pane.active { display: block; }
+
+  .sb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; white-space: normal; }
+  @media (max-width: 900px) { .sb-grid { grid-template-columns: 1fr; } }
+  .sb-card { background: var(--panel); border: 1px solid #334155; border-radius: 10px; overflow: hidden; }
+  .sb-card img { width: 100%; height: 200px; object-fit: cover; background: #050811; }
+  .sb-info { padding: 10px; font-size: 12px; }
+  .sb-tag { display: inline-block; background: var(--accent); color: #fff; font-weight: 800; font-size: 10px; padding: 3px 7px; border-radius: 4px; margin-bottom: 6px; }
+
+  .chat-bar { margin-top: 12px; display: flex; gap: 8px; background: var(--panel); padding: 10px; border-radius: 10px; border: 1px solid #475569; }
+  .chat-bar input { background: #050811; flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">🏔️ MOUNTAIN AI — KESİNTİSİZ OTONOM STÜDYO</div>
+  <div class="api-zone">
+    <span style="font-size:12px; font-weight:800;">🔑 API KEY:</span>
+    <input type="password" id="apiKey" placeholder="AIza... anahtarını yapıştır" oninput="localStorage.setItem('m_key', this.value.trim())">
+  </div>
+</div>
+
+<div class="main-grid">
+  <!-- SOL PANEL -->
+  <div class="card">
+    <div class="card-title">
+      <span>⚙️ Proje & Senaryo Girişi</span>
+      <span style="color:var(--green); font-size:11px;" id="activeEngine">Otomatik Korumalı Motor</span>
+    </div>
+
+    <label>1. Marka / İsim</label>
+    <input type="text" id="brandInput" placeholder="Örn: Yemekçi, Mountain AI, Oto Yıkama..." value="Yemekçi">
+
+    <label>2. Hedef Kitle / Konu</label>
+    <input type="text" id="sectorInput" placeholder="Örn: Pratik yemek yapmak isteyenler..." value="Evde hızlı ve lezzetli yemek yapmak isteyenler">
+
+    <label>3. Senin Senaryon veya Özel Emrin (İstediğin Gibi Yaz)</label>
+    <textarea id="customScenario" rows="4" placeholder="Aklındaki senaryoyu veya emri buraya yaz. (Örn: 'Öğrenciler için 5 dakikada makarna tarifi üzerinden komik bir senaryo kur' veya boş bırak tamamen kendi üretsin)"></textarea>
+
+    <button id="runBtn" class="btn-fire" onclick="uret()">🚀 SENARYOYA GÖRE ŞİMDİ ÜRET</button>
+
+    <div class="terminal" id="term">
+      [HAZIR] İstediğin adı, konuyu veya senaryoyu yazıp butona bas. Yoğunluk hatası olursa sistem otomatik yedek motora geçer.
+    </div>
+
+    <div class="voice-panel">
+      <div style="font-size:11px; font-weight:800; color:var(--green);">🎙️ DIŞ SES (VOICEOVER)</div>
+      <textarea id="voText" rows="2" style="margin-top:6px; font-size:12px; background:#050811;">Üretim yaptığında senaryonun dış sesi buraya gelecek.</textarea>
+      <div class="btn-group">
+        <button class="btn-sm" onclick="sesliOku()">🔊 Sesi Dinle</button>
+        <button class="btn-sm" style="background:#ef4444; color:#fff;" onclick="window.speechSynthesis.cancel()">⏹️ Durdur</button>
+        <button class="btn-sm" style="background:var(--blue);" onclick="indir()">💾 İndir (.md)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAĞ PANEL -->
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" id="tb0" onclick="sekme(0)">📋 1. Konsept & Strateji</button>
+      <button class="tab" id="tb1" onclick="sekme(1)">🎬 2. Reklam Senaryosu</button>
+      <button class="tab" id="tb2" onclick="sekme(2)">🖼️ 3. Görsel Storyboard & Prompt</button>
+      <button class="tab" id="tb3" onclick="sekme(3)">💬 4. Sosyal Medya & DM</button>
+    </div>
+
+    <div id="pn0" class="pane active">Sol taraftan bilgilerini girip <b>"🚀 SENARYOYA GÖRE ŞİMDİ ÜRET"</b> butonuna bas.</div>
+    <div id="pn1" class="pane">Senaryo burada oluşturulacak.</div>
+    <div id="pn2" class="pane">
+      <div id="sbArea" class="sb-grid"></div>
+      <div id="promptArea" style="margin-top:14px; white-space:pre-wrap; border-top:1px solid #334155; padding-top:12px;">Promptlar burada oluşturulacak.</div>
+    </div>
+    <div id="pn3" class="pane">Sosyal medya açıklaması ve DM satış mesajları burada oluşturulacak.</div>
+
+    <!-- ANLIK EMİR ÇUBUĞU -->
+    <div class="chat-bar">
+      <input type="text" id="cmdInput" placeholder="Buradan istediğin emri ver (Örn: 'Senaryoyu tamamen değiştir, dönerci reklamı yap' veya 'Daha komik yap')..." onkeydown="if(event.key==='Enter') emirUygula()">
+      <button class="btn-sm" style="background:#a855f7; color:#fff; padding:10px 16px;" onclick="emirUygula()">⚡ Emri Uygula</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.onload = () => {
+  const k = localStorage.getItem('m_key');
+  if (k) document.getElementById('apiKey').value = k;
+};
+
+function log(m, r="#a7f3d0") {
+  const t = document.getElementById('term');
+  t.innerHTML += `<div style="color:${r}">> ${m}</div>`;
+  t.scrollTop = t.scrollHeight;
+}
+
+function sekme(i) {
+  for (let j=0; j<4; j++) {
+    document.getElementById('tb'+j).className = (j===i) ? 'tab active' : 'tab';
+    document.getElementById('pn'+j).className = (j===i) ? 'pane active' : 'pane';
+  }
+}
+
+// ASLA ÇÖKMEYEN OTOMATİK YEDEKLİ MOTOR SİSTEMİ
+async function garantiliGeminiCagir(key, prompt) {
+  // Önce hesaptaki gerçek açık modelleri çek, yoksa en stabil listeyi kullan
+  let modeller = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash-lite"];
+  try {
+    const rList = await fetch("https://generativelanguage.googleapis.com/v1beta/models?key=" + encodeURIComponent(key));
+    if (rList.ok) {
+      const dList = await rList.json();
+      const aciklar = (dList.models || [])
+        .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
+        .map(m => m.name.replace("models/", ""))
+        .filter(ad => ad.includes("flash") && !ad.includes("tts") && !ad.includes("image"));
+      if (aciklar.length > 0) {
+        // 3.8 yoğunluk hatası verdiği için 2.5 ve 1.5'e öncelik ver
+        aciklar.sort((a, b) => (a.includes("2.5") ? -1 : b.includes("2.5") ? 1 : 0));
+        modeller = aciklar;
+      }
+    }
+  } catch (e) {}
+
+  let sonHata = "";
+  for (const model of modeller) {
+    try {
+      document.getElementById('activeEngine').innerText = "Aktif: " + model;
+      log(`⚡ [${model}] motoruyla üretiliyor...`, "#38bdf8");
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7 }
+        })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error?.message || "Model meşgul");
+
+      const parts = d?.candidates?.[0]?.content?.parts || [];
+      let text = parts.filter(p => typeof p.text === "string" && !p.thought).map(p => p.text).join("\n").trim();
+      if (!text) text = parts.map(p => p.text || "").join("\n").trim();
+      if (text) return text;
+    } catch (err) {
+      sonHata = err.message;
+      log(`⚠️ ${model} yoğun, anında yedek motora geçiliyor...`, "#facc15");
+    }
+  }
+  throw new Error("Tüm motorlar denendi. Son hata: " + sonHata);
+}
+
+function ekranaDagit(metin) {
+  const ayir = (b1, b2) => {
+    const p = metin.split(b1)[1];
+    if (!p) return "";
+    return b2 ? (p.split(b2)[0] || "").trim() : p.trim();
+  };
+
+  const b1 = ayir("===BOLUM_1===", "===BOLUM_2===") || metin;
+  const b2 = ayir("===BOLUM_2===", "===BOLUM_3===") || "Senaryo 1. sekmede.";
+  const b3 = ayir("===BOLUM_3===", "===BOLUM_4===") || "Promptlar 1. sekmede.";
+  const b4 = ayir("===BOLUM_4===", "===GORSELLER===") || "Sosyal medya metni 1. sekmede.";
+  const gorseller = ayir("===GORSELLER===", "===DIS_SES===");
+  let ses = ayir("===DIS_SES===", null);
+
+  document.getElementById('pn0').innerText = b1;
+  document.getElementById('pn1').innerText = b2;
+  document.getElementById('promptArea').innerText = b3;
+  document.getElementById('pn3').innerText = b4;
+
+  // Görsel Storyboard
+  const satirlar = gorseller.split("\n").map(s => s.trim()).filter(s => s.length > 5);
+  const s1 = satirlar[0] || "cinematic close up commercial shot, high quality, 4k";
+  const s2 = satirlar[1] || "dynamic action commercial scene, warm lighting, 4k";
+  const s3 = satirlar[2] || "happy customer enjoying product, commercial final shot, 4k";
+  const seed = Math.floor(Math.random() * 9999);
+  document.getElementById('sbArea').innerHTML = [s1, s2, s3].map((p, idx) => `
+    <div class="sb-card">
+      <img src="https://image.pollinations.ai/prompt/${encodeURIComponent(p.substring(0,120))}?width=500&height=700&seed=${seed+idx}&nologo=true" loading="lazy">
+      <div class="sb-info"><span class="sb-tag">SAHNE ${idx+1}</span><div>${p}</div></div>
+    </div>
+  `).join("");
+
+  if (ses && ses.length > 5) {
+    document.getElementById('voText').value = ses.replace(/^["'\s]+|["'\s]+$/g, '');
+  }
+}
+
+async function uret(ekEmir = "") {
+  const key = document.getElementById('apiKey').value.trim();
+  if (!key) { log("🚨 Lütfen önce sağ üstteki kutuya API anahtarını yapıştır!", "#f87171"); return; }
+
+  const marka = document.getElementById('brandInput').value.trim() || "Marka";
+  const konu = document.getElementById('sectorInput').value.trim() || "Genel";
+  const ozelSenaryo = document.getElementById('customScenario').value.trim();
+  const btn = document.getElementById('runBtn');
+
+  btn.disabled = true;
+  window.speechSynthesis.cancel();
+
+  const anaTalimat = `Sen profesyonel bir reklam ve içerik ajansısın.
+Marka Adı: "${marka}"
+Hedef Kitle / Konu: "${konu}"
+Kullanıcının Özel Senaryosu / Emri: "${ozelSenaryo || 'Konuya en uygun yaratıcı senaryoyu kendin kurgula.'}"
+${ekEmir ? `EK REVİZYON EMRİ (BUNA KESİNLİKLE UY): "${ekEmir}"` : ""}
+
+KESİN KURAL: Sadece yukarıdaki Marka Adı, Konu ve Kullanıcının Özel Senaryosuna bağlı kal! Başka hiçbir sektörden bahsetme. Yanıtını TAM OLARAK aşağıdaki başlıklarla böl:
+
+===BOLUM_1===
+("${marka}" ve "${konu}" için 3 yaratıcı video konsepti ve stratejisi)
+
+===BOLUM_2===
+(Kullanıcının istediği senaryoya göre 0-3 sn Kanca, 3-10 sn Gelişme, 10-15 sn Sonuç olarak 15 saniyelik çekim senaryosu. Her sahne için Görsel, Türkçe Dış Ses ve Ekran Yazısı)
+
+===BOLUM_3===
+(Bu senaryodaki 3 sahne için İngilizce AI Video ve Görsel üretim promptları ve müzik/kurgu notları)
+
+===BOLUM_4===
+("${marka}" için Instagram/TikTok açıklaması, hashtagler ve müşteriye gidecek otomatik DM satış mesajı)
+
+===GORSELLER===
+(Sadece 3 satır halinde 1., 2. ve 3. sahneyi çizecek kısa İngilizce görsel açıklaması yaz, her satıra 1 tane)
+
+===DIS_SES===
+(Sadece videoda seslendirilecek tek parça, vurucu Türkçe dış ses metnini yaz)`;
+
+  try {
+    const sonuc = await garantiliGeminiCagir(key, anaTalimat);
+    ekranaDagit(sonuc);
+    log("✅ Tam istediğin senaryoya göre 4 sekme ve dış ses üretildi!", "#10b981");
+    setTimeout(sesliOku, 300);
+  } catch (e) {
+    log("❌ Hata: " + e.message, "#f87171");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function emirUygula() {
+  const emir = document.getElementById('cmdInput').value.trim();
+  if (!emir) return;
+  document.getElementById('customScenario').value = emir;
+  document.getElementById('cmdInput').value = "";
+  log(`🤖 Yeni emir alındı: "${emir}" — Baştan üretiliyor...`, "#c084fc");
+  await uret(emir);
+}
+
+function sesliOku() {
+  const m = document.getElementById('voText').value.trim();
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(m);
+  u.lang = 'tr-TR'; u.rate = 1.08;
+  window.speechSynthesis.speak(u);
+}
+
+function indir() {
+  const metin = `# ${document.getElementById('brandInput').value} PRODÜKSİYON PAKETİ\n\n` +
+    `## 1. KONSEPT\n${document.getElementById('pn0').innerText}\n\n` +
+    `## 2. SENARYO\n${document.getElementById('pn1').innerText}\n\n` +
+    `## 3. PROMPTLAR\n${document.getElementById('promptArea').innerText}\n\n` +
+    `## 4. SOSYAL MEDYA & DM\n${document.getElementById('pn3').innerText}`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([metin], {type: 'text/markdown'}));
+  a.download = 'produksiyon_paketi.md';
+  a.click();
+}
+</script>
+</body>
+</html>
